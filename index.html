@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جبلة FC — مجتمع كرة القدم</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =====================================================
+   CSS — ما تلمسه، التصميم هون
+   ===================================================== */
+:root {
+  --bg: #0b0f0b;
+  --surface: #111811;
+  --surface2: #172017;
+  --surface3: #1e2e1e;
+  --border: #243024;
+  --text-primary: #edf5ed;
+  --text-secondary: #7aaa7a;
+  --text-muted: #3a5a3a;
+  --green: #22c55e;
+  --green-dim: #16a34a;
+  --green-glow: rgba(34,197,94,0.12);
+  --green-light: rgba(34,197,94,0.08);
+  --yellow: #eab308;
+  --yellow-light: rgba(234,179,8,0.1);
+  --red: #ef4444;
+  --red-light: rgba(239,68,68,0.1);
+  --blue: #3b82f6;
+  --blue-light: rgba(59,130,246,0.1);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --nav-h: 68px;
+  --sidebar-w: 256px;
+  --font: 'IBM Plex Sans Arabic', sans-serif;
+  --max-w: 1280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh;overflow-x:hidden;}
+*,*::before,*::after{transition:background-color 0.2s,border-color 0.2s,color 0.15s;}
+input,button,select,textarea{font-family:var(--font);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:flex;}
+
+/* AUTH */
+#auth-screen{min-height:100vh;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;padding:20px;}
+.auth-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(ellipse,rgba(34,197,94,0.08) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none;}
+.auth-glow2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(34,197,94,0.05) 0%,transparent 70%);bottom:-50px;left:-50px;pointer-events:none;}
+.auth-grid{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(34,197,94,0.025) 48px,rgba(34,197,94,0.025) 49px),repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(34,197,94,0.025) 48px,rgba(34,197,94,0.025) 49px);}
+.auth-wrap{position:relative;z-index:2;width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 36px;box-shadow:var(--shadow-lg);animation:fadeUp 0.4s ease;}
+.auth-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+.auth-logo-icon{width:50px;height:50px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(34,197,94,0.3);flex-shrink:0;}
+.auth-brand-name{font-size:22px;font-weight:700;}
+.auth-brand-sub{font-size:11px;color:var(--text-muted);}
+.auth-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.auth-subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:28px;line-height:1.6;}
+.auth-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:28px;}
+.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--text-secondary);font-family:var(--font);font-size:13px;font-weight:600;border-radius:9px;cursor:pointer;transition:all 0.2s;}
+.auth-tab.active{background:var(--surface);color:var(--text-primary);box-shadow:var(--shadow-sm);}
+.f-group{margin-bottom:16px;}
+.f-label{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;display:block;}
+.f-input{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;outline:none;transition:all 0.2s;direction:rtl;}
+.f-input:focus{border-color:var(--green);background:var(--surface3);box-shadow:0 0 0 3px var(--green-glow);}
+.f-input::placeholder{color:var(--text-muted);}
+select.f-input option{background:var(--surface2);}
+textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+.pos-btn{padding:9px 6px;border:1px solid var(--border);background:var(--surface2);border-radius:8px;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;font-family:var(--font);}
+.pos-btn.active{border-color:var(--green);background:var(--green-light);color:var(--green);}
+.pos-btn:hover:not(.active){border-color:var(--text-muted);color:var(--text-primary);}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+.type-btn{padding:14px 8px;border:1px solid var(--border);background:var(--surface2);border-radius:10px;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;display:flex;flex-direction:column;gap:8px;align-items:center;font-family:var(--font);}
+.type-btn svg{color:var(--text-muted);transition:color 0.2s;}
+.type-btn.active{border-color:var(--green);background:var(--green-light);color:var(--green);}
+.type-btn.active svg{color:var(--green);}
+.btn-auth{width:100%;padding:13px;background:var(--green);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:8px;box-shadow:0 4px 16px rgba(34,197,94,0.25);}
+.btn-auth:hover{background:var(--green-dim);transform:translateY(-1px);}
+.btn-auth:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--text-muted);}
+.auth-switch span{color:var(--green);cursor:pointer;font-weight:600;}
+.pos-section{display:none;}
+.pos-section.show{display:block;}
+.auth-error{background:var(--red-light);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
+.auth-error.show{display:block;}
+
+/* APP */
+#app-screen{min-height:100vh;display:none;flex-direction:row;max-width:var(--max-w);margin:0 auto;width:100%;}
+#app-screen.active{display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:100;overflow-y:auto;}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;}
+.sb-logo-icon{width:42px;height:42px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(34,197,94,0.25);}
+.sb-brand-name{font-size:17px;font-weight:700;}
+.sb-brand-city{font-size:11px;color:var(--text-muted);}
+.sb-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:3px;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);font-size:14px;font-weight:500;transition:all 0.2s;border:none;background:none;width:100%;text-align:right;font-family:var(--font);}
+.sb-item svg{flex-shrink:0;color:var(--text-muted);transition:color 0.2s;order:-1;}
+.sb-item:hover{background:var(--surface2);color:var(--text-primary);}
+.sb-item.active{background:var(--green-light);color:var(--green);font-weight:600;}
+.sb-item.active svg{color:var(--green);}
+.sb-badge{margin-right:auto;min-width:20px;height:20px;background:var(--red);color:#fff;border-radius:10px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;}
+.sb-divider{height:1px;background:var(--border);margin:8px 12px;}
+.sb-user{padding:16px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;}
+.sb-uname{font-size:13px;font-weight:600;line-height:1.2;}
+.sb-urole{font-size:11px;color:var(--text-muted);}
+.sb-logout{margin-right:auto;color:var(--text-muted);cursor:pointer;padding:4px;border:none;background:none;transition:color 0.2s;}
+.sb-logout:hover{color:var(--red);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;}
+.tb-left{display:flex;align-items:center;gap:16px;}
+.tb-menu-btn{display:none;width:36px;height:36px;border:1px solid var(--border);background:var(--surface2);border-radius:10px;cursor:pointer;align-items:center;justify-content:center;color:var(--text-secondary);}
+.tb-page-name{font-size:18px;font-weight:700;}
+.tb-page-sub{font-size:12px;color:var(--text-muted);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text-muted);font-size:13px;cursor:pointer;min-width:180px;font-family:var(--font);}
+.tb-icon-btn{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all 0.2s;position:relative;}
+.tb-icon-btn:hover{background:var(--surface3);}
+.tb-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--surface);}
+.tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--green);}
+
+/* PAGES */
+.pages{flex:1;overflow-y:auto;padding-bottom:20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.page{display:none;animation:fadeUp 0.3s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* COMMON */
+.page-header{padding:24px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+.page-title{font-size:24px;font-weight:700;}
+.page-subtitle{font-size:13px;color:var(--text-muted);margin-top:3px;}
+.section{padding:20px 24px 0;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.sec-link{font-size:12px;color:var(--green);cursor:pointer;font-weight:600;border:none;background:none;font-family:var(--font);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all 0.2s;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid transparent;font-family:var(--font);}
+.chip-green{background:var(--green-light);color:var(--green);border-color:rgba(34,197,94,0.2);}
+.chip-yellow{background:var(--yellow-light);color:var(--yellow);border-color:rgba(234,179,8,0.2);}
+.chip-red{background:var(--red-light);color:var(--red);border-color:rgba(239,68,68,0.2);}
+.chip-blue{background:var(--blue-light);color:var(--blue);border-color:rgba(59,130,246,0.2);}
+.chip-gray{background:var(--surface2);color:var(--text-secondary);border-color:var(--border);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.2);}
+.btn-green:hover{background:var(--green-dim);transform:translateY(-1px);}
+.btn-outline{background:transparent;color:var(--text-secondary);border:1px solid var(--border);}
+.btn-outline:hover{background:var(--surface2);color:var(--text-primary);}
+.btn-sm{padding:7px 12px;font-size:12px;}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;}
+.avatar-sm{width:32px;height:32px;font-size:12px;}
+.pill-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.pill-tab{padding:7px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font);}
+.pill-tab.active{background:var(--green);color:#fff;border-color:var(--green);}
+.pill-tab:hover:not(.active){border-color:var(--text-muted);color:var(--text-primary);}
+
+/* FEED */
+.feed-layout{display:grid;grid-template-columns:1fr 310px;gap:20px;padding:20px 24px;}
+.feed-col{display:flex;flex-direction:column;gap:16px;}
+.feed-sidebar{display:flex;flex-direction:column;gap:16px;}
+.create-post-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.create-post-inner{display:flex;align-items:center;gap:12px;}
+.create-post-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:11px 16px;cursor:pointer;color:var(--text-muted);font-size:14px;transition:all 0.2s;font-family:var(--font);}
+.create-post-input:hover{border-color:var(--text-muted);}
+.create-post-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.post-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 0.2s;}
+.post-card:hover{box-shadow:var(--shadow-md);}
+.post-header{padding:16px 16px 12px;display:flex;align-items:flex-start;gap:12px;}
+.post-meta{flex:1;min-width:0;}
+.post-author{font-size:14px;font-weight:700;}
+.post-role-time{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;}
+.dot-sep{width:3px;height:3px;background:var(--text-muted);border-radius:50%;display:inline-block;}
+.post-body{padding:0 16px 14px;}
+.post-text{font-size:14px;line-height:1.7;color:var(--text-primary);margin-bottom:12px;}
+.post-match-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+.post-match-title{font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.3px;}
+.post-match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pmi-item{display:flex;flex-direction:column;gap:3px;}
+.pmi-label{font-size:10px;color:var(--text-muted);font-weight:600;}
+.pmi-val{font-size:13px;font-weight:600;}
+.post-positions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.post-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.post-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.post-stats{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+.field-banner{background:linear-gradient(135deg,var(--surface3),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.field-banner-icon{width:46px;height:46px;background:var(--green-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0;border:1px solid rgba(34,197,94,0.2);}
+.field-banner-info{flex:1;}
+.field-banner-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+.field-banner-meta{font-size:12px;color:var(--text-muted);}
+.tournament-banner-box{background:linear-gradient(135deg,rgba(234,179,8,0.06),rgba(234,179,8,0.02));border:1px solid rgba(234,179,8,0.15);border-radius:12px;padding:14px;margin-bottom:0;}
+.tb-post-title{font-size:15px;font-weight:700;color:var(--yellow);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.tb-post-desc{font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.6;}
+.tb-post-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.tb-stat-box{background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.12);border-radius:8px;padding:10px;text-align:center;}
+.tb-stat-val{font-size:17px;font-weight:700;color:var(--yellow);}
+.tb-stat-label{font-size:10px;color:var(--text-muted);}
+.welcome-card{background:linear-gradient(135deg,var(--surface3),var(--surface2));border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.wc-greeting{font-size:13px;color:var(--text-secondary);margin-bottom:3px;}
+.wc-name{font-size:21px;font-weight:700;margin-bottom:3px;}
+.wc-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;}
+.wc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.wc-stat{background:rgba(0,0,0,0.2);border-radius:10px;padding:10px;text-align:center;}
+.wc-stat-val{font-size:19px;font-weight:700;color:var(--green);}
+.wc-stat-label{font-size:10px;color:var(--text-muted);}
+.next-match-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.nmc-title{font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px;}
+.nmc-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.nmc-team{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.nmc-badge{width:44px;height:44px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.nmc-team-name{font-size:12px;font-weight:600;text-align:center;}
+.nmc-vs{font-size:18px;font-weight:700;color:var(--text-muted);}
+.nmc-info{background:var(--green-light);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:8px 12px;text-align:center;}
+.nmc-time{font-size:15px;font-weight:700;color:var(--green);}
+.nmc-place{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.player-quick-list{display:flex;flex-direction:column;gap:8px;}
+.pql-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface2);border-radius:10px;cursor:pointer;transition:all 0.2s;border:1px solid transparent;}
+.pql-item:hover{background:var(--surface3);border-color:var(--border);}
+.pql-info{flex:1;min-width:0;}
+.pql-name{font-size:13px;font-weight:600;}
+.pql-pos{font-size:11px;color:var(--text-muted);}
+.pql-rating{font-size:12px;font-weight:700;color:var(--yellow);}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:10px;}
+.stat-row-label{font-size:13px;color:var(--text-secondary);}
+.stat-row-val{font-size:16px;font-weight:700;}
+
+/* MATCHES */
+.matches-filters{display:flex;align-items:center;gap:10px;padding:16px 24px 0;flex-wrap:wrap;}
+.match-list{display:flex;flex-direction:column;gap:12px;padding:16px 24px;}
+.match-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.2s;}
+.match-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.match-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.match-dot.open{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,0.5);}
+.match-dot.full{background:var(--red);}
+.match-dot.soon{background:var(--yellow);box-shadow:0 0 8px rgba(234,179,8,0.5);}
+.match-info{flex:1;min-width:0;}
+.match-title{font-size:15px;font-weight:700;margin-bottom:5px;}
+.match-metas{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.match-meta{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.match-right{display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+.spots-num{font-size:19px;font-weight:700;color:var(--green);}
+.spots-text{font-size:11px;color:var(--text-muted);}
+
+/* PLAYERS */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:16px 24px;}
+.player-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.player-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);opacity:0;transition:opacity 0.2s;}
+.player-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);}
+.player-card:hover::before{opacity:1;}
+.pc-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;margin:0 auto 12px;border:3px solid var(--surface3);}
+.pc-name{font-size:15px;font-weight:700;margin-bottom:6px;}
+.pc-position{margin-bottom:14px;}
+.pc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.pc-stat{background:var(--surface2);border-radius:8px;padding:8px 4px;text-align:center;}
+.pc-stat-val{font-size:14px;font-weight:700;}
+.pc-stat-label{font-size:9px;color:var(--text-muted);}
+
+/* FIELDS */
+.fields-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px 24px;}
+.field-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.field-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);}
+.field-img{height:130px;background:linear-gradient(135deg,#061a06,#122012);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden;}
+.field-img::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,0.025) 28px,rgba(255,255,255,0.025) 30px),repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,0.025) 28px,rgba(255,255,255,0.025) 30px);}
+.field-img-badge{position:absolute;top:10px;left:10px;}
+.field-info{padding:16px;}
+.field-name{font-size:16px;font-weight:700;margin-bottom:8px;}
+.field-meta-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.field-meta-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-secondary);}
+.field-footer{display:flex;align-items:center;justify-content:space-between;}
+.field-price{font-size:15px;font-weight:700;color:var(--green);}
+.field-price span{font-size:11px;color:var(--text-muted);font-weight:400;}
+
+/* TOURNAMENTS */
+.tournaments-list{display:flex;flex-direction:column;gap:14px;padding:16px 24px;}
+.tournament-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.tournament-card:hover{box-shadow:var(--shadow-md);}
+.tournament-header{padding:16px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--border);}
+.tournament-icon{width:52px;height:52px;background:var(--yellow-light);border:1px solid rgba(234,179,8,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.tournament-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+.tournament-org{font-size:13px;color:var(--text-secondary);margin-bottom:8px;}
+.tournament-body{padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;border-bottom:1px solid var(--border);}
+.t-stat{text-align:center;}
+.t-stat-val{font-size:18px;font-weight:700;}
+.t-stat-label{font-size:10px;color:var(--text-muted);}
+.tournament-footer{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+
+/* NOTIFICATIONS */
+.notif-list{display:flex;flex-direction:column;}
+.notif-item{display:flex;align-items:flex-start;gap:14px;padding:16px 24px;border-bottom:1px solid var(--border);transition:background 0.2s;cursor:pointer;}
+.notif-item:hover{background:var(--surface);}
+.notif-item.unread{background:rgba(34,197,94,0.04);}
+.notif-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+.notif-text{flex:1;}
+.notif-title{font-size:14px;font-weight:500;margin-bottom:4px;line-height:1.5;}
+.notif-time{font-size:11px;color:var(--text-muted);}
+.notif-unread-dot{width:8px;height:8px;background:var(--green);border-radius:50%;margin-top:6px;flex-shrink:0;}
+
+/* PROFILE */
+.profile-header{background:var(--surface);border-bottom:1px solid var(--border);padding:28px 24px;display:flex;align-items:flex-start;gap:20px;}
+.profile-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700;flex-shrink:0;border:3px solid var(--green);box-shadow:0 0 20px rgba(34,197,94,0.2);}
+.profile-info{flex:1;}
+.profile-name{font-size:22px;font-weight:700;margin-bottom:6px;}
+.profile-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.profile-stats{display:flex;gap:24px;flex-wrap:wrap;}
+.prof-stat-val{font-size:20px;font-weight:700;}
+.prof-stat-label{font-size:11px;color:var(--text-muted);}
+.profile-body{padding:24px;}
+.profile-section{margin-bottom:24px;}
+.profile-sec-title{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.mh-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);margin-bottom:8px;}
+.mh-result{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.mh-result.win{background:var(--green-light);color:var(--green);}
+.mh-result.draw{background:var(--yellow-light);color:var(--yellow);}
+.mh-result.loss{background:var(--red-light);color:var(--red);}
+.mh-info{flex:1;}
+.mh-title{font-size:13px;font-weight:600;}
+.mh-meta{font-size:11px;color:var(--text-muted);}
+.mh-score{font-size:16px;font-weight:700;}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 24px;max-width:860px;}
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
+.settings-card-title{font-size:15px;font-weight:700;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.set-row:last-child{border-bottom:none;padding-bottom:0;}
+.set-label{font-size:14px;font-weight:500;}
+.set-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.toggle{width:44px;height:24px;background:var(--surface3);border-radius:99px;cursor:pointer;position:relative;transition:background 0.2s;border:1px solid var(--border);flex-shrink:0;}
+.toggle.on{background:var(--green);border-color:var(--green);}
+.toggle::after{content:'';position:absolute;top:2px;right:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.2s;}
+.toggle.on::after{transform:translateX(-20px);}
+.danger-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;background:var(--red-light);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s;font-family:var(--font);width:100%;justify-content:center;}
+.danger-btn:hover{background:var(--red);color:#fff;}
+.settings-nav-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.settings-nav-row:last-child{border-bottom:none;}
+.settings-nav-row:hover .set-label{color:var(--green);}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal.open{display:flex;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:fadeUp 0.25s ease;}
+.modal-header{padding:22px 24px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all 0.2s;}
+.modal-body{padding:20px 24px 24px;}
+
+/* MOBILE NAV */
+.mobile-nav{display:none;position:fixed;bottom:0;right:0;left:0;height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);z-index:200;padding:0 8px;}
+.mnav-inner{display:flex;align-items:center;justify-content:space-around;height:100%;}
+.mnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;border:none;background:none;color:var(--text-muted);cursor:pointer;transition:color 0.2s;font-size:10px;font-weight:600;position:relative;font-family:var(--font);}
+.mnav-btn.active{color:var(--green);}
+.mnav-dot{position:absolute;top:6px;right:8px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--surface);}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.loading-overlay.hidden{display:none;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:14px;color:var(--text-muted);}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-lg);font-family:var(--font);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.1);color:var(--green);}
+.toast.error{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:var(--red);}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.feed-layout{grid-template-columns:1fr;}.feed-sidebar{display:none;}.settings-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{display:none;}.mobile-nav{display:block;}.pages{padding-bottom:calc(var(--nav-h) + 16px);}.tb-menu-btn{display:flex;}.tb-search{display:none;}.feed-layout,.section,.page-header{padding-right:16px;padding-left:16px;}.match-list,.matches-filters,.players-grid,.fields-grid,.tournaments-list,.settings-grid{padding-right:16px;padding-left:16px;}.fields-grid{grid-template-columns:1fr;}.profile-header{flex-direction:column;align-items:center;text-align:center;}.profile-stats{justify-content:center;}.profile-body{padding:16px;}.tournament-body{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.auth-wrap{padding:28px 20px;}.f-row{grid-template-columns:1fr;}.players-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<!-- شاشة التحميل -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">جاري التحميل...</div>
+</div>
+
+<!-- ===== شاشة تسجيل الدخول ===== -->
+<div id="auth-screen" class="screen">
+  <div class="auth-glow"></div><div class="auth-glow2"></div><div class="auth-grid"></div>
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="12,6 15,10 12,14 9,10"/><line x1="12" y1="14" x2="12" y2="19"/></svg>
+      </div>
+      <div>
+        <div class="auth-brand-name">جبلة FC</div>
+        <div class="auth-brand-sub">مجتمع كرة القدم · جبلة</div>
+      </div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">تسجيل الدخول</button>
+      <button class="auth-tab" onclick="switchAuth('register')">إنشاء حساب</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="auth-title">أهلاً بعودتك ⚽</div>
+      <div class="auth-subtitle">سجّل دخولك إلى حسابك في مجتمع جبلة</div>
+      <div class="auth-error" id="login-error"></div>
+      <div class="f-group">
+        <label class="f-label">البريد الإلكتروني</label>
+        <input type="email" class="f-input" id="login-email" placeholder="example@email.com">
+      </div>
+      <div class="f-group">
+        <label class="f-label">كلمة المرور</label>
+        <input type="password" class="f-input" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-auth" id="login-btn" onclick="doLogin()">تسجيل الدخول</button>
+      <div class="auth-switch">ليس لديك حساب؟ <span onclick="switchAuth('register')">سجّل الآن</span></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" style="display:none;">
+      <div class="auth-title">انضم إلى المجتمع 🏟️</div>
+      <div class="auth-subtitle">أنشئ حسابك في مجتمع جبلة لكرة القدم</div>
+      <div class="auth-error" id="reg-error"></div>
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">الاسم الكامل</label>
+          <input type="text" class="f-input" id="reg-name" placeholder="اسمك الكامل">
+        </div>
+        <div class="f-group">
+          <label class="f-label">رقم الهاتف</label>
+          <input type="tel" class="f-input" id="reg-phone" placeholder="09XX XXX XXX">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">البريد الإلكتروني</label>
+        <input type="email" class="f-input" id="reg-email" placeholder="example@email.com">
+      </div>
+      <div class="f-group">
+        <label class="f-label">كلمة المرور</label>
+        <input type="password" class="f-input" id="reg-pass" placeholder="••••••••">
+      </div>
+      <div class="f-group">
+        <label class="f-label">نوع الحساب</label>
+        <div class="type-grid">
+          <div class="type-btn active" onclick="selectType('player',this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 20a8 8 0 1 0-16 0"/></svg>
+            لاعب
+          </div>
+          <div class="type-btn" onclick="selectType('team_owner',this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            صاحب فريق
+          </div>
+          <div class="type-btn" onclick="selectType('field_owner',this)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M12 3v18M2 12h20M7 8h2M15 8h2M7 16h2M15 16h2"/></svg>
+            صاحب ملعب
+          </div>
+        </div>
+      </div>
+      <div class="f-group pos-section" id="position-section">
+        <label class="f-label">مركزك في الملعب</label>
+        <div class="pos-grid">
+          <div class="pos-btn" onclick="selectPos(this)">حارس مرمى</div>
+          <div class="pos-btn" onclick="selectPos(this)">مدافع</div>
+          <div class="pos-btn" onclick="selectPos(this)">وسط</div>
+          <div class="pos-btn" onclick="selectPos(this)">جناح</div>
+          <div class="pos-btn active" onclick="selectPos(this)">مهاجم</div>
+        </div>
+      </div>
+      <button class="btn-auth" id="reg-btn" onclick="doRegister()">إنشاء الحساب</button>
+      <div class="auth-switch">لديك حساب؟ <span onclick="switchAuth('login')">سجّل الدخول</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== شاشة التطبيق ===== -->
+<div id="app-screen" class="screen">
+  <aside class="sidebar">
+    <div class="sb-logo" onclick="setPage('home')">
+      <div class="sb-logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="12,6 15,10 12,14 9,10"/><line x1="12" y1="14" x2="12" y2="19"/></svg></div>
+      <div><div class="sb-brand-name">جبلة FC</div><div class="sb-brand-city">جبلة · سوريا</div></div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" id="snav-home" onclick="setPage('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>الرئيسية</button>
+      <button class="sb-item" id="snav-matches" onclick="setPage('matches')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12,6 15,10 12,14 9,10"/><line x1="12" y1="14" x2="12" y2="19"/></svg>المباريات</button>
+      <button class="sb-item" id="snav-players" onclick="setPage('players')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>اللاعبون</button>
+      <button class="sb-item" id="snav-fields" onclick="setPage('fields')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M12 3v18M2 12h20M7 8h2M15 8h2M7 16h2M15 16h2"/></svg>الملاعب</button>
+      <button class="sb-item" id="snav-tournaments" onclick="setPage('tournaments')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M17 3H7a2 2 0 0 0-2 2v3c0 3.31 2.69 6 6 6s6-2.69 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 8H3M19 8h2"/></svg>البطولات</button>
+      <div class="sb-divider"></div>
+      <button class="sb-item" id="snav-notifs" onclick="setPage('notifs')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>الإشعارات<span class="sb-badge" id="notif-badge" style="display:none;">0</span></button>
+      <button class="sb-item" id="snav-profile" onclick="setPage('profile')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 20a8 8 0 1 0-16 0"/></svg>الملف الشخصي</button>
+      <button class="sb-item" id="snav-settings" onclick="setPage('settings')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>الإعدادات</button>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-av" id="sb-av">م</div>
+      <div style="flex:1;min-width:0;"><div class="sb-uname" id="sb-uname">...</div><div class="sb-urole" id="sb-urole">لاعب</div></div>
+      <button class="sb-logout" onclick="doLogout()" title="تسجيل الخروج"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-menu-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div><div class="tb-page-name" id="tb-page-name">الرئيسية</div><div class="tb-page-sub" id="tb-page-sub">جبلة، سوريا · اليوم</div></div>
+      </div>
+      <div class="tb-right">
+        <div class="tb-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>بحث...</div>
+        <button class="tb-icon-btn" onclick="setPage('notifs')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="tb-notif-dot" id="tb-notif-dot" style="display:none;"></span></button>
+        <div class="tb-av" id="tb-av" onclick="setPage('profile')">م</div>
+      </div>
+    </header>
+
+    <div class="pages">
+
+      <!-- الرئيسية -->
+      <div class="page active" id="page-home">
+        <div class="feed-layout">
+          <div class="feed-col">
+            <div class="create-post-box" id="create-post-card" style="display:none;">
+              <div class="create-post-inner">
+                <div class="avatar" id="cp-av">م</div>
+                <div class="create-post-input" onclick="openModal('mo-post')">شارك مباراة أو إعلاناً...</div>
+              </div>
+              <div class="create-post-actions">
+                <button class="btn btn-outline btn-sm" onclick="openModal('mo-post')">⚽ طلب لاعبين</button>
+                <button class="btn btn-outline btn-sm" onclick="openModal('mo-post')">🏟️ الملعب متاح</button>
+                <button class="btn btn-outline btn-sm" onclick="openModal('mo-post')">🏆 بطولة</button>
+              </div>
+            </div>
+            <!-- المنشورات ستُحمَّل هنا من Firestore -->
+            <div id="posts-container">
+              <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+                <div class="spinner" style="margin:0 auto 16px;"></div>
+                <p>جاري تحميل المنشورات...</p>
+              </div>
+            </div>
+          </div>
+          <div class="feed-sidebar">
+            <div class="welcome-card">
+              <div class="wc-greeting">أهلاً بعودتك،</div>
+              <div class="wc-name" id="wc-name">...</div>
+              <div class="wc-sub" id="wc-sub">جبلة FC</div>
+              <div class="wc-stats">
+                <div class="wc-stat"><div class="wc-stat-val" id="wc-matches">٠</div><div class="wc-stat-label">مباراة</div></div>
+                <div class="wc-stat"><div class="wc-stat-val" id="wc-teams">٠</div><div class="wc-stat-label">فريق</div></div>
+                <div class="wc-stat"><div class="wc-stat-val" id="wc-rating">—</div><div class="wc-stat-label">تقييم</div></div>
+              </div>
+            </div>
+            <div class="card" style="padding:16px;">
+              <div class="sec-hdr" style="margin-bottom:12px;">
+                <div class="sec-title">إحصائيات المجتمع</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div class="stat-row"><span class="stat-row-label">مباريات نشطة</span><span class="stat-row-val" style="color:var(--green);" id="stat-matches">—</span></div>
+                <div class="stat-row"><span class="stat-row-label">لاعبون مسجّلون</span><span class="stat-row-val" style="color:var(--blue);" id="stat-players">—</span></div>
+                <div class="stat-row"><span class="stat-row-label">ملاعب متاحة</span><span class="stat-row-val" style="color:var(--yellow);" id="stat-fields">—</span></div>
+                <div class="stat-row"><span class="stat-row-label">بطولات مفتوحة</span><span class="stat-row-val" style="color:var(--red);" id="stat-tournaments">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- المباريات -->
+      <div class="page" id="page-matches">
+        <div class="page-header">
+          <div><div class="page-title">المباريات</div><div class="page-subtitle">اعثر على مباراة وانضم إليها</div></div>
+          <button class="btn btn-green" id="create-match-btn" style="display:none;" onclick="openModal('mo-post')">+ نشر مباراة</button>
+        </div>
+        <div class="matches-filters">
+          <div class="pill-tabs">
+            <button class="pill-tab active" onclick="filterTab(this)">جميع المباريات</button>
+            <button class="pill-tab" onclick="filterTab(this)">مفتوحة</button>
+            <button class="pill-tab" onclick="filterTab(this)">الليلة</button>
+            <button class="pill-tab" onclick="filterTab(this)">مكتملة</button>
+          </div>
+        </div>
+        <div class="match-list" id="matches-container">
+          <div style="text-align:center;padding:40px;color:var(--text-muted);"><div class="spinner" style="margin:0 auto 12px;"></div><p>جاري التحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- اللاعبون -->
+      <div class="page" id="page-players">
+        <div class="page-header"><div><div class="page-title">اللاعبون</div><div class="page-subtitle">استعرض لاعبي مجتمع جبلة</div></div></div>
+        <div class="matches-filters">
+          <div class="pill-tabs">
+            <button class="pill-tab active" onclick="filterTab(this)">الكل</button>
+            <button class="pill-tab" onclick="filterTab(this)">حارس</button>
+            <button class="pill-tab" onclick="filterTab(this)">مدافع</button>
+            <button class="pill-tab" onclick="filterTab(this)">وسط</button>
+            <button class="pill-tab" onclick="filterTab(this)">جناح</button>
+            <button class="pill-tab" onclick="filterTab(this)">مهاجم</button>
+          </div>
+        </div>
+        <div class="players-grid" id="players-container">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);"><div class="spinner" style="margin:0 auto 12px;"></div><p>جاري التحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- الملاعب -->
+      <div class="page" id="page-fields">
+        <div class="page-header">
+          <div><div class="page-title">الملاعب</div><div class="page-subtitle">الملاعب المتاحة في جبلة</div></div>
+          <button class="btn btn-green" id="add-field-btn" style="display:none;" onclick="openModal('mo-post')">+ إضافة ملعب</button>
+        </div>
+        <div class="matches-filters">
+          <div class="pill-tabs">
+            <button class="pill-tab active" onclick="filterTab(this)">جميع الملاعب</button>
+            <button class="pill-tab" onclick="filterTab(this)">متاح الآن</button>
+            <button class="pill-tab" onclick="filterTab(this)">عشب طبيعي</button>
+            <button class="pill-tab" onclick="filterTab(this)">أرضية صناعية</button>
+          </div>
+        </div>
+        <div class="fields-grid" id="fields-container">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);"><div class="spinner" style="margin:0 auto 12px;"></div><p>جاري التحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- البطولات -->
+      <div class="page" id="page-tournaments">
+        <div class="page-header">
+          <div><div class="page-title">البطولات</div><div class="page-subtitle">البطولات النشطة والقادمة</div></div>
+          <button class="btn btn-green" id="create-tournament-btn" style="display:none;" onclick="openModal('mo-post')">+ إعلان بطولة</button>
+        </div>
+        <div class="matches-filters">
+          <div class="pill-tabs">
+            <button class="pill-tab active" onclick="filterTab(this)">الكل</button>
+            <button class="pill-tab" onclick="filterTab(this)">مفتوحة</button>
+            <button class="pill-tab" onclick="filterTab(this)">قادمة</button>
+            <button class="pill-tab" onclick="filterTab(this)">منتهية</button>
+          </div>
+        </div>
+        <div class="tournaments-list" id="tournaments-container">
+          <div style="text-align:center;padding:40px;color:var(--text-muted);"><div class="spinner" style="margin:0 auto 12px;"></div><p>جاري التحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- الإشعارات -->
+      <div class="page" id="page-notifs">
+        <div class="page-header" style="margin-bottom:12px;">
+          <div><div class="page-title">الإشعارات</div><div class="page-subtitle">ابقَ على اطلاع دائم</div></div>
+          <button class="btn btn-outline btn-sm" onclick="markAllRead()">تحديد الكل كمقروء</button>
+        </div>
+        <div class="notif-list" id="notifs-container">
+          <div style="text-align:center;padding:40px;color:var(--text-muted);"><div class="spinner" style="margin:0 auto 12px;"></div><p>جاري التحميل...</p></div>
+        </div>
+      </div>
+
+      <!-- الملف الشخصي -->
+      <div class="page" id="page-profile">
+        <div class="profile-header">
+          <div class="profile-av" id="prof-av">م</div>
+          <div class="profile-info">
+            <div class="profile-name" id="prof-name">...</div>
+            <div class="profile-tags">
+              <span class="chip chip-green" id="prof-pos">—</span>
+              <span class="chip chip-gray" id="prof-type">—</span>
+              <span style="font-size:13px;color:var(--text-muted);">· جبلة، سوريا</span>
+            </div>
+            <div class="profile-stats">
+              <div><div class="prof-stat-val" id="prof-stat-matches" style="color:var(--green);">٠</div><div class="prof-stat-label">مباراة</div></div>
+              <div><div class="prof-stat-val" id="prof-stat-rating" style="color:var(--yellow);">—</div><div class="prof-stat-label">تقييم</div></div>
+              <div><div class="prof-stat-val" id="prof-stat-goals" style="color:var(--blue);">٠</div><div class="prof-stat-label">هدف</div></div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="setPage('settings')">تعديل الملف</button>
+        </div>
+        <div class="profile-body">
+          <div class="profile-section">
+            <div class="profile-sec-title">معلومات التواصل</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span id="prof-email" style="font-size:13px;color:var(--text-secondary);">—</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+                <span id="prof-phone" style="font-size:13px;color:var(--text-secondary);">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- الإعدادات -->
+      <div class="page" id="page-settings">
+        <div class="page-header" style="margin-bottom:4px;"><div><div class="page-title">الإعدادات</div><div class="page-subtitle">إدارة حسابك وتفضيلاتك</div></div></div>
+        <div class="settings-grid">
+          <div>
+            <div class="settings-card">
+              <div class="settings-card-title">المعلومات الشخصية</div>
+              <div class="f-group"><label class="f-label">الاسم الكامل</label><input type="text" class="f-input" id="set-name" placeholder="اسمك الكامل"></div>
+              <div class="f-group"><label class="f-label">رقم الهاتف</label><input type="tel" class="f-input" id="set-phone" placeholder="+963..."></div>
+              <div class="f-group"><label class="f-label">البريد الإلكتروني</label><input type="email" class="f-input" id="set-email" placeholder="example@email.com" readonly style="opacity:0.6;"></div>
+              <button class="btn btn-green" style="width:100%;justify-content:center;" onclick="saveSettings()">حفظ التغييرات</button>
+            </div>
+            <div class="settings-card">
+              <div class="settings-card-title">إعدادات كرة القدم</div>
+              <div class="f-group"><label class="f-label">نوع الحساب</label><select class="f-input" id="set-type" onchange="updateTypeDisplay()"><option value="player">لاعب</option><option value="team_owner">صاحب فريق</option><option value="field_owner">صاحب ملعب</option></select></div>
+              <div class="f-group" id="set-pos-section"><label class="f-label">مركزك في الملعب</label><select class="f-input" id="set-pos"><option>حارس مرمى</option><option>مدافع</option><option>وسط</option><option>جناح</option><option>مهاجم</option></select></div>
+            </div>
+          </div>
+          <div>
+            <div class="settings-card">
+              <div class="settings-card-title">الإشعارات</div>
+              <div class="set-row"><div><div class="set-label">مباريات جديدة</div><div class="set-sub">إشعار عند نشر مباريات</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="set-row"><div><div class="set-label">طلبات الانضمام</div><div class="set-sub">عندما يطلب أحدهم الانضمام</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="set-row"><div><div class="set-label">البطولات</div><div class="set-sub">إعلانات البطولات</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="set-row"><div><div class="set-label">توافر الملاعب</div><div class="set-sub">تحديثات حجز الملاعب</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+            <div class="settings-card">
+              <div class="settings-card-title">نشاطي</div>
+              <div class="settings-nav-row" onclick="setPage('matches')"><div><div class="set-label">مباراياتي</div><div class="set-sub">عرض كل مباراياتك</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+              <div class="settings-nav-row" onclick="setPage('notifs')"><div><div class="set-label">طلباتي</div><div class="set-sub">طلبات الانضمام المُرسلة</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+              <div class="settings-nav-row" onclick="setPage('profile')"><div><div class="set-label">عرض الملف</div><div class="set-sub">ملفك الشخصي العام</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+            </div>
+            <div class="settings-card" style="border-color:rgba(239,68,68,0.2);">
+              <div class="settings-card-title" style="color:var(--red);border-color:rgba(239,68,68,0.1);">منطقة الخطر</div>
+              <button class="danger-btn" onclick="doLogout()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>تسجيل الخروج</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pages -->
+  </div><!-- /main -->
+
+  <nav class="mobile-nav">
+    <div class="mnav-inner">
+      <button class="mnav-btn active" id="mnav-home" onclick="setPage('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>الرئيسية</button>
+      <button class="mnav-btn" id="mnav-matches" onclick="setPage('matches')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12,6 15,10 12,14 9,10"/><line x1="12" y1="14" x2="12" y2="19"/></svg>المباريات</button>
+      <button class="mnav-btn" id="mnav-players" onclick="setPage('players')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>اللاعبون</button>
+      <button class="mnav-btn" id="mnav-notifs" onclick="setPage('notifs')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="mnav-dot" id="mnav-notif-dot" style="display:none;"></span>الإشعارات</button>
+      <button class="mnav-btn" id="mnav-profile" onclick="setPage('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 20a8 8 0 1 0-16 0"/></svg>حسابي</button>
+    </div>
+  </nav>
+</div>
+
+<!-- Modal نشر منشور -->
+<div class="modal" id="mo-post" onclick="if(event.target===this)closeModal('mo-post')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">نشر مباراة أو إعلان</div>
+      <button class="modal-close" onclick="closeModal('mo-post')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="pill-tabs" style="margin-bottom:20px;">
+        <button class="pill-tab active" onclick="filterTab(this)">⚽ طلب لاعبين</button>
+        <button class="pill-tab" onclick="filterTab(this)">🏟️ الملعب متاح</button>
+        <button class="pill-tab" onclick="filterTab(this)">🏆 بطولة</button>
+      </div>
+      <div class="f-group"><label class="f-label">نص المنشور</label><textarea class="f-input" rows="3" placeholder="اكتب تفاصيل المباراة أو إعلانك هنا..."></textarea></div>
+      <div class="f-row">
+        <div class="f-group"><label class="f-label">التاريخ والوقت</label><input type="datetime-local" class="f-input"></div>
+        <div class="f-group"><label class="f-label">اسم الملعب</label><input type="text" class="f-input" placeholder="مثال: ملعب الزهراء"></div>
+      </div>
+      <div class="f-row">
+        <div class="f-group"><label class="f-label">عدد اللاعبين المطلوبين</label><input type="number" class="f-input" placeholder="٣" min="1" max="11"></div>
+        <div class="f-group"><label class="f-label">مستوى اللعب</label><select class="f-input"><option>جميع المستويات</option><option>مبتدئ</option><option>متوسط</option><option>متقدم</option></select></div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">المراكز المطلوبة</label>
+        <div class="pos-grid">
+          <div class="pos-btn" onclick="this.classList.toggle('active')">حارس مرمى</div>
+          <div class="pos-btn" onclick="this.classList.toggle('active')">مدافع</div>
+          <div class="pos-btn" onclick="this.classList.toggle('active')">وسط</div>
+          <div class="pos-btn" onclick="this.classList.toggle('active')">جناح</div>
+          <div class="pos-btn active" onclick="this.classList.toggle('active')">مهاجم</div>
+        </div>
+      </div>
+      <button class="btn btn-green" style="width:100%;justify-content:center;margin-top:12px;" onclick="submitPost()">نشر الآن</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- =====================================================
+   FIREBASE — القسم الوحيد اللي فيه منطق Firebase
+   إذا عدّلت التصميم ما لازم تلمس هون
+   ===================================================== -->
+<script type="module">
+
+  // ── 1. استيراد Firebase ──────────────────────────────
+  import { initializeApp }                        from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword,
+           signInWithEmailAndPassword, signOut,
+           onAuthStateChanged }                   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc,
+           updateDoc, collection, addDoc,
+           getDocs, query, orderBy, limit,
+           serverTimestamp }                      from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+  // ── 2. إعداد Firebase (ضع بياناتك هنا فقط) ─────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyAL0NgNOvm8Ra7FwxWf7eQ7tlUcfgTAmgI",
+    authDomain: "jableh-fc-25798.firebaseapp.com",
+    projectId: "jableh-fc-25798",
+    storageBucket: "jableh-fc-25798.firebasestorage.app",
+    messagingSenderId: "383795569581",
+    appId: "1:383795569581:web:5d12e9709d35e7b80b7724"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── 3. مراقبة حالة تسجيل الدخول ────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    hideLoading();
+    if (user) {
+      // المستخدم مسجّل — جلب بياناته من Firestore
+      const userData = await getUserData(user.uid);
+      startApp(userData);
+    } else {
+      // المستخدم غير مسجّل — عرض شاشة الدخول
+      showAuthScreen();
+    }
+  });
+
+  // ── 4. جلب بيانات المستخدم من Firestore ─────────────
+  async function getUserData(uid) {
+    try {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (snap.exists()) return { uid, ...snap.data() };
+    } catch (e) {}
+    return { uid };
+  }
+
+  // ── 5. تسجيل الدخول ──────────────────────────────────
+  window.doLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    if (!email || !pass) { showAuthError('login', 'يرجى تعبئة جميع الحقول'); return; }
+    setAuthLoading('login-btn', true);
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged سيأخذ الأمر من هنا
+    } catch (e) {
+      const msgs = {
+        'auth/user-not-found':   'لا يوجد حساب بهذا البريد',
+        'auth/wrong-password':   'كلمة المرور غير صحيحة',
+        'auth/invalid-email':    'البريد الإلكتروني غير صالح',
+        'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة',
+        'auth/too-many-requests':'حاول مجدداً لاحقاً'
+      };
+      showAuthError('login', msgs[e.code] || ('خطأ: ' + e.code));
+      setAuthLoading('login-btn', false);
+    }
+  };
+
+  // ── 6. إنشاء حساب ────────────────────────────────────
+  window.doRegister = async function() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    if (!name||!phone||!email||!pass) { showAuthError('reg', 'يرجى تعبئة جميع الحقول'); return; }
+    if (pass.length < 6) { showAuthError('reg', 'كلمة المرور 6 أحرف على الأقل'); return; }
+
+    const typeMap  = { 'لاعب':'player', 'صاحب فريق':'team_owner', 'صاحب ملعب':'field_owner' };
+    const typeText = document.querySelector('.type-btn.active')?.textContent?.trim() || 'لاعب';
+    const posText  = document.querySelector('#position-section .pos-btn.active')?.textContent?.trim() || '';
+
+    setAuthLoading('reg-btn', true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      // حفظ البيانات الإضافية في Firestore
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name, phone, email,
+        type:     typeMap[typeText] || 'player',
+        position: posText,
+        matches:  0,
+        goals:    0,
+        rating:   null,
+        createdAt: serverTimestamp()
+      });
+      // onAuthStateChanged سيأخذ الأمر من هنا
+    } catch (e) {
+      const msgs = {
+        'auth/email-already-in-use': 'هذا البريد مستخدم بالفعل',
+        'auth/invalid-email':        'البريد الإلكتروني غير صالح',
+        'auth/weak-password':        'كلمة المرور ضعيفة جداً'
+      };
+      showAuthError('reg', msgs[e.code] || ('خطأ: ' + e.code));
+      setAuthLoading('reg-btn', false);
+    }
+  };
+
+  // ── 7. تسجيل الخروج ──────────────────────────────────
+  window.doLogout = async function() {
+    await signOut(auth);
+    // onAuthStateChanged سيعرض شاشة الدخول تلقائياً
+  };
+
+  // ── 8. حفظ الإعدادات ─────────────────────────────────
+  window.saveSettings = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const name  = document.getElementById('set-name')?.value.trim();
+    const phone = document.getElementById('set-phone')?.value.trim();
+    const type  = document.getElementById('set-type')?.value;
+    const pos   = document.getElementById('set-pos')?.value;
+    try {
+      await updateDoc(doc(db, "users", user.uid), { name, phone, type, position: pos });
+      showToast('تم حفظ الإعدادات ✅', 'success');
+      updateUIForUser({ name, phone, email: user.email, type, position: pos });
+    } catch (e) {
+      showToast('حدث خطأ أثناء الحفظ', 'error');
+    }
+  };
+
+  // ── 9. تحميل البيانات من Firestore ───────────────────
+  // (فاضية الآن — جاهزة تتملى)
+
+  async function loadPosts() {
+    try {
+      // مثال: const q = query(collection(db, "posts"), orderBy("createdAt","desc"), limit(20));
+      // const snap = await getDocs(q);
+      // snap.forEach(d => renderPost({ id: d.id, ...d.data() }));
+    } catch(e) {}
+    // مؤقتاً: عرض رسالة فارغة
+    document.getElementById('posts-container').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد منشورات بعد</p></div>';
+  }
+
+  async function loadMatches() {
+    try {
+      // مثال: const snap = await getDocs(collection(db, "matches"));
+    } catch(e) {}
+    document.getElementById('matches-container').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد مباريات بعد</p></div>';
+  }
+
+  async function loadPlayers() {
+    try {
+      // مثال: const snap = await getDocs(query(collection(db,"users"), where("type","==","player")));
+    } catch(e) {}
+    document.getElementById('players-container').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">👤</p><p>لا يوجد لاعبون بعد</p></div>';
+  }
+
+  async function loadFields() {
+    try {
+      // مثال: const snap = await getDocs(collection(db, "fields"));
+    } catch(e) {}
+    document.getElementById('fields-container').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏟️</p><p>لا توجد ملاعب بعد</p></div>';
+  }
+
+  async function loadTournaments() {
+    try {
+      // مثال: const snap = await getDocs(collection(db, "tournaments"));
+    } catch(e) {}
+    document.getElementById('tournaments-container').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏆</p><p>لا توجد بطولات بعد</p></div>';
+  }
+
+  // ── 10. نشر منشور (فاضي — جاهز) ────────────────────
+  window.submitPost = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      // await addDoc(collection(db, "posts"), { ...postData, uid: user.uid, createdAt: serverTimestamp() });
+      showToast('تم نشر المنشور! 🎉', 'success');
+      closeModal('mo-post');
+      loadPosts();
+    } catch(e) {
+      showToast('حدث خطأ أثناء النشر', 'error');
+    }
+  };
+
+  // ── 11. تشغيل التطبيق بعد تسجيل الدخول ─────────────
+  function startApp(userData) {
+    showAppScreen();
+    updateUIForUser(userData);
+    loadPosts();
+    loadMatches();
+    loadPlayers();
+    loadFields();
+    loadTournaments();
+    setPage('home');
+    showToast('أهلاً بك في جبلة FC! ⚽', 'success');
+  }
+
+  function updateUIForUser(u) {
+    if (!u) return;
+    const init = (u.name || 'م')[0];
+    const typeLabels = { player:'لاعب', team_owner:'صاحب فريق', field_owner:'صاحب ملعب' };
+    const typeLabel  = typeLabels[u.type] || 'لاعب';
+
+    ['sb-av','tb-av','cp-av','prof-av'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = init;
+    });
+
+    const set = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.textContent = val; };
+    set('sb-uname',       u.name || '');
+    set('sb-urole',       typeLabel);
+    set('wc-name',        (u.name || '').split(' ')[0]);
+    set('wc-sub',         (u.position ? u.position + ' · ' : '') + 'جبلة FC');
+    set('wc-matches',     u.matches || '٠');
+    set('wc-rating',      u.rating  ? '⭐' + u.rating : '—');
+    set('prof-name',      u.name || '');
+    set('prof-pos',       u.position || '—');
+    set('prof-type',      typeLabel);
+    set('prof-email',     u.email || '');
+    set('prof-phone',     u.phone || '');
+    set('prof-stat-matches', u.matches || '٠');
+    set('prof-stat-goals',   u.goals   || '٠');
+    set('prof-stat-rating',  u.rating  ? '⭐' + u.rating : '—');
+
+    const inp = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+    inp('set-name',  u.name);
+    inp('set-phone', u.phone);
+    inp('set-email', u.email);
+    const setType = document.getElementById('set-type');
+    if (setType && u.type) setType.value = u.type;
+    const setPos = document.getElementById('set-pos');
+    if (setPos && u.position) setPos.value = u.position;
+    updateTypeDisplay();
+
+    const isOwner = u.type === 'team_owner' || u.type === 'field_owner';
+    const showHide = (id, show) => { const el = document.getElementById(id); if(el) el.style.display = show ? (el.tagName === 'DIV' ? 'block' : 'inline-flex') : 'none'; };
+    showHide('create-post-card',    isOwner);
+    showHide('create-match-btn',    u.type === 'team_owner');
+    showHide('create-tournament-btn', isOwner);
+    showHide('add-field-btn',       u.type === 'field_owner');
+  }
+
+</script>
+
+<!-- =====================================================
+   UI HELPERS — دوال الواجهة فقط (لا تحتوي Firebase)
+   ===================================================== -->
+<script>
+  const pageNames = { home:'الرئيسية', matches:'المباريات', players:'اللاعبون', fields:'الملاعب', tournaments:'البطولات', notifs:'الإشعارات', profile:'الملف الشخصي', settings:'الإعدادات' };
+  const pageSubs  = { home:'جبلة، سوريا · اليوم', matches:'اعثر على مباراة وانضم', players:'لاعبو مجتمع جبلة', fields:'الملاعب المتاحة في جبلة', tournaments:'البطولات النشطة والقادمة', notifs:'إشعاراتك', profile:'ملفك الشخصي', settings:'إدارة حسابك' };
+
+  function setPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page)?.classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('snav-' + page)?.classList.add('active');
+    document.querySelectorAll('.mnav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('mnav-' + page)?.classList.add('active');
+    document.getElementById('tb-page-name').textContent = pageNames[page] || page;
+    document.getElementById('tb-page-sub').textContent  = pageSubs[page]  || '';
+    document.querySelector('.pages')?.scrollTo(0,0);
+  }
+
+  function switchAuth(mode) {
+    document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='login'&&i===0)||(mode==='register'&&i===1)));
+    document.getElementById('login-form').style.display    = mode==='login'    ? 'block' : 'none';
+    document.getElementById('register-form').style.display = mode==='register' ? 'block' : 'none';
+    document.getElementById('login-error').classList.remove('show');
+    document.getElementById('reg-error').classList.remove('show');
+  }
+
+  function selectType(type, el) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('position-section').classList.toggle('show', type === 'player');
+  }
+
+  function selectPos(el) {
+    document.querySelectorAll('#position-section .pos-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function updateTypeDisplay() {
+    const type = document.getElementById('set-type')?.value;
+    const sec  = document.getElementById('set-pos-section');
+    if (sec) sec.style.display = type === 'player' ? 'block' : 'none';
+  }
+
+  function showAuthError(form, msg) {
+    const el = document.getElementById(form + '-error');
+    if (el) { el.textContent = msg; el.classList.add('show'); }
+  }
+
+  function setAuthLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading ? 'جاري التحميل...' : (btnId === 'login-btn' ? 'تسجيل الدخول' : 'إنشاء الحساب');
+  }
+
+  function showLoading()  { document.getElementById('loading-overlay').classList.remove('hidden'); }
+  function hideLoading()  { document.getElementById('loading-overlay').classList.add('hidden'); }
+  function showAuthScreen() {
+    document.getElementById('app-screen').classList.remove('active');
+    document.getElementById('auth-screen').classList.add('active');
+  }
+  function showAppScreen() {
+    document.getElementById('auth-screen').classList.remove('active');
+    document.getElementById('app-screen').classList.add('active');
+  }
+
+  function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+
+  function filterTab(el) {
+    el.closest('.pill-tabs')?.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function markAllRead() {
+    document.querySelectorAll('.notif-item.unread').forEach(el => {
+      el.classList.remove('unread');
+      el.querySelector('.notif-unread-dot')?.remove();
+    });
+    ['notif-badge','tb-notif-dot','mnav-notif-dot'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    showToast('تم تحديد الكل كمقروء ✓', 'success');
+  }
+
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
