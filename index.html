@@ -1867,46 +1867,66 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
   // ── قبول لاعب ─────────────────────────────────────────
   window.acceptPlayer = async function(notifId, fromPhone, fromName, postId, postTitle, spotsNeeded, notifEl) {
     try {
-      // 1. تحديث الإشعار كمقبول
-      await updateDoc(doc(db, "personal_notifications", notifId), { status: 'accepted', read: true });
+      // 1. احذف الإشعار نهائياً فوراً (مافي داعي يضل)
+      await deleteDoc(doc(db, "personal_notifications", notifId));
 
-      // 2. فتح واتساب للتواصل مع اللاعب
+      // 2. إزالة الكارد من الـ UI فوراً بدون انتظار
+      const card = document.getElementById('pnotif-' + notifId);
+      if (card) card.remove();
+
+      // 3. فتح واتساب
       if (fromPhone) {
         const msg = encodeURIComponent(`أهلاً ${fromName}، تم قبولك في المباراة "${postTitle}" على جبلة FC! 🎉`);
         window.open(`https://wa.me/${fromPhone.replace(/[^0-9]/g,'')}?text=${msg}`, '_blank');
       }
 
-      // 3. تحقق إذا اكتملت الأماكن المطلوبة
-      if (postId && spotsNeeded) {
-        const acceptedSnap = await getDocs(query(
-          collection(db, "personal_notifications"),
-          where("postId", "==", postId),
-          where("status", "==", "accepted")
-        ));
-        if (acceptedSnap.size >= Number(spotsNeeded)) {
-          // حذف البوست تلقائياً
-          try { await deleteDoc(doc(db, "posts", postId)); } catch(e) {}
-          try { await deleteDoc(doc(db, "matches", postId)); } catch(e) {}
-          showToast('اكتمل عدد اللاعبين — تم حذف البوست تلقائياً 🎯', 'success');
-          loadPosts();
-          loadMatches();
-        }
+      showToast(`✅ تم قبول ${fromName}`, 'success');
+
+      // 4. تحقق عدد المقبولين (where واحد بس لتجنب composite index)
+      if (postId) {
+        try {
+          const needed = Number(spotsNeeded) || 1;
+          const allForPost = await getDocs(query(
+            collection(db, "personal_notifications"),
+            where("postId", "==", postId)
+          ));
+          // عدّ المقبولين + اللي حذفناه هلق (1)
+          const acceptedSoFar = allForPost.docs.filter(d => d.data().status === 'accepted').length;
+          const totalAccepted = acceptedSoFar + 1;
+
+          if (totalAccepted >= needed) {
+            // اكتمل العدد — احذف من كل الـ collections دفعة
+            await Promise.all([
+              deleteDoc(doc(db, "posts",   postId)).catch(() => {}),
+              deleteDoc(doc(db, "matches", postId)).catch(() => {}),
+              // احذف باقي الإشعارات المعلقة لهذا البوست
+              ...allForPost.docs
+                .filter(d => d.data().status === 'pending')
+                .map(d => deleteDoc(doc(db, "personal_notifications", d.id)).catch(() => {}))
+            ]);
+            showToast('🎯 اكتمل عدد اللاعبين — تم حذف البوست من كل الأقسام', 'success');
+            loadPosts();
+            loadMatches();
+          }
+        } catch(e) {}
       }
 
-      // 4. تحديث عرض الإشعار
-      if (notifEl) notifEl.innerHTML = `<div style="padding:10px 0;font-size:13px;color:var(--green);">✓ تم القبول — تم فتح واتساب للتواصل</div>`;
-      showToast('تم قبول اللاعب', 'success');
+      // 5. تحديث الـ badge والقائمة
       loadPersonalNotifs();
+
     } catch(e) {
-      showToast('خطأ: ' + e.message, 'error');
+      showToast('خطأ: ' + (e.message || e.code), 'error');
     }
   };
 
   // ── رفض لاعب ──────────────────────────────────────────
   window.rejectPlayer = async function(notifId, notifEl) {
     try {
-      await updateDoc(doc(db, "personal_notifications", notifId), { status: 'rejected', read: true });
-      if (notifEl) notifEl.innerHTML = `<div style="padding:10px 0;font-size:13px;color:var(--text-muted);">تم الرفض</div>`;
+      // احذف الإشعار نهائياً (مافي داعي يضل)
+      await deleteDoc(doc(db, "personal_notifications", notifId));
+      // إزالة الكارد فوراً
+      const card = document.getElementById('pnotif-' + notifId);
+      if (card) card.remove();
       showToast('تم رفض الطلب', '');
       loadPersonalNotifs();
     } catch(e) {}
