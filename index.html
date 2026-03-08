@@ -513,6 +513,11 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
 /* PERSONAL NOTIFS */
 .pnotif-item{padding:14px 16px;border-bottom:1px solid var(--border);animation:fadeUp 0.2s ease;}
 .pnotif-item:last-child{border-bottom:none;}
+.pnotif-item .btn{font-size:12px;padding:7px 10px;white-space:nowrap;}
+@media(max-width:400px){
+  .pnotif-item{padding:12px;}
+  .pnotif-item .btn{font-size:11px;padding:6px 8px;}
+}
 </style>
 </head>
 <body>
@@ -650,7 +655,7 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
             <span class="tb-notif-dot" id="personal-notif-badge" style="display:none;width:auto;height:auto;padding:1px 4px;font-size:9px;font-weight:700;border-radius:8px;top:4px;right:4px;"></span>
           </button>
-          <div id="personal-notifs-dropdown" style="display:none;position:absolute;top:44px;left:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:200;max-height:480px;overflow-y:auto;">
+          <div id="personal-notifs-dropdown" style="display:none;position:fixed;top:68px;left:8px;right:8px;width:auto;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:9999;max-height:70vh;overflow-y:auto;">
             <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
               <span style="font-size:14px;font-weight:700;">الطلبات الواردة</span>
               <button onclick="togglePersonalNotifs()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;line-height:1;">×</button>
@@ -1693,16 +1698,18 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
         createdAt: now
       };
 
-      // ── حفظ في posts (للفيد الرئيسي)
-      await addDoc(collection(db, "posts"), {
+      // ── حفظ في posts (للفيد الرئيسي) — نولّد ID مشترك
+      const sharedRef = doc(collection(db, "posts"));
+      const sharedId  = sharedRef.id;
+      await setDoc(sharedRef, {
         ...baseData,
         spots: spotsVal, level: levelVal, positions,
         price: priceVal, maxTeams: maxTeamsVal, prizes: prizesVal
       });
 
-      // ── حفظ في collection المناسب
+      // ── حفظ في collection المناسب بنفس الـ ID
       if (postType === 'match') {
-        await addDoc(collection(db, "matches"), {
+        await setDoc(doc(db, "matches", sharedId), {
           title, text,
           field: fieldVal,
           date: dateFormatted, time: timeFormatted,
@@ -1713,7 +1720,7 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
           createdAt: now
         });
       } else if (postType === 'field') {
-        await addDoc(collection(db, "fields"), {
+        await setDoc(doc(db, "fields", sharedId), {
           name: title, description: text,
           location: fieldVal,
           price: priceVal,
@@ -1722,7 +1729,7 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
           createdAt: now
         });
       } else if (postType === 'tournament') {
-        await addDoc(collection(db, "tournaments"), {
+        await setDoc(doc(db, "tournaments", sharedId), {
           name: title, description: text,
           location: fieldVal,
           startDate: dateFormatted, startTime: timeFormatted,
