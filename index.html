@@ -796,7 +796,7 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
            onAuthStateChanged }                   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc,
            updateDoc, collection, addDoc,
-           getDocs, query, orderBy, limit,
+           getDocs, query, orderBy, limit, where,
            serverTimestamp }                      from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
   // ── 2. إعداد Firebase (ضع بياناتك هنا فقط) ─────────
@@ -921,61 +921,258 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
   // ── 9. تحميل البيانات من Firestore ───────────────────
   // (فاضية الآن — جاهزة تتملى)
 
+  // ── 9. تحميل المنشورات ──────────────────────────────
   async function loadPosts() {
+    const el = document.getElementById('posts-container');
     try {
-      // مثال: const q = query(collection(db, "posts"), orderBy("createdAt","desc"), limit(20));
-      // const snap = await getDocs(q);
-      // snap.forEach(d => renderPost({ id: d.id, ...d.data() }));
-    } catch(e) {}
-    // مؤقتاً: عرض رسالة فارغة
-    document.getElementById('posts-container').innerHTML =
-      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد منشورات بعد</p></div>';
+      const snap = await getDocs(query(collection(db, "posts"), orderBy("createdAt","desc"), limit(20)));
+      if (snap.empty) {
+        el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد منشورات بعد — كن أول من ينشر!</p></div>';
+        return;
+      }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const p = { id: d.id, ...d.data() };
+        const typeLabel = { player:'لاعب', team_owner:'صاحب فريق', field_owner:'صاحب ملعب' }[p.authorType] || 'عضو';
+        const time = p.createdAt?.toDate ? timeAgo(p.createdAt.toDate()) : 'الآن';
+        const init = (p.authorName || 'م')[0];
+        el.innerHTML += `
+          <div class="post-card">
+            <div class="post-header">
+              <div class="avatar">${init}</div>
+              <div class="post-meta">
+                <div class="post-author">${p.authorName || 'مجهول'}</div>
+                <div class="post-role-time">
+                  <span class="chip chip-blue" style="padding:2px 8px;font-size:10px;">${typeLabel}</span>
+                  <span class="dot-sep"></span><span>${time}</span>
+                </div>
+              </div>
+            </div>
+            <div class="post-body">
+              <p class="post-text">${p.text || ''}</p>
+              ${p.field ? `<div class="post-match-card"><div class="post-match-title">تفاصيل</div><div class="post-match-grid">
+                <div class="pmi-item"><div class="pmi-label">🏟️ الملعب</div><div class="pmi-val">${p.field}</div></div>
+                ${p.datetime ? `<div class="pmi-item"><div class="pmi-label">📅 الوقت</div><div class="pmi-val">${p.datetime}</div></div>` : ''}
+                ${p.spots ? `<div class="pmi-item"><div class="pmi-label">👥 أماكن</div><div class="pmi-val">${p.spots}</div></div>` : ''}
+                ${p.level ? `<div class="pmi-item"><div class="pmi-label">⚡ المستوى</div><div class="pmi-val">${p.level}</div></div>` : ''}
+              </div></div>` : ''}
+            </div>
+            <div class="post-footer">
+              <div class="post-actions">
+                <button class="btn btn-outline btn-sm">💬 تعليق</button>
+              </div>
+            </div>
+          </div>`;
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⚠️ تعذّر تحميل المنشورات</div>';
+    }
   }
 
+  // ── تحميل المباريات ───────────────────────────────────
   async function loadMatches() {
+    const el = document.getElementById('matches-container');
     try {
-      // مثال: const snap = await getDocs(collection(db, "matches"));
-    } catch(e) {}
-    document.getElementById('matches-container').innerHTML =
-      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد مباريات بعد</p></div>';
+      const snap = await getDocs(query(collection(db, "matches"), orderBy("createdAt","desc")));
+      if (snap.empty) {
+        el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">⚽</p><p>لا توجد مباريات بعد</p></div>';
+        return;
+      }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const m = { id: d.id, ...d.data() };
+        const statusMap = { open:'open', full:'full', soon:'soon' };
+        const statusLabel = { open:'🟢 مفتوح', full:'🔴 مكتمل', soon:'🟡 قريباً' };
+        const st = m.status || 'open';
+        el.innerHTML += `
+          <div class="match-card">
+            <div class="match-dot ${statusMap[st] || 'open'}"></div>
+            <div class="match-info">
+              <div class="match-title">${m.title || 'مباراة'}</div>
+              <div class="match-metas">
+                ${m.datetime ? `<div class="match-meta">🕐 ${m.datetime}</div>` : ''}
+                ${m.field    ? `<div class="match-meta">📍 ${m.field}</div>`    : ''}
+                ${m.level    ? `<div class="match-meta">⚡ ${m.level}</div>`    : ''}
+              </div>
+            </div>
+            <div class="match-right">
+              ${m.spots ? `<div><span class="spots-num">${m.spots}</span><div class="spots-text">أماكن متبقية</div></div>` : ''}
+              ${st !== 'full'
+                ? `<button class="btn btn-green btn-sm" onclick="requestJoin(this,'${m.id}')">انضم</button>`
+                : `<button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">مكتمل</button>`}
+            </div>
+          </div>`;
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⚠️ تعذّر تحميل المباريات</div>';
+    }
   }
 
+  // ── تحميل اللاعبين ────────────────────────────────────
   async function loadPlayers() {
+    const el = document.getElementById('players-container');
     try {
-      // مثال: const snap = await getDocs(query(collection(db,"users"), where("type","==","player")));
-    } catch(e) {}
-    document.getElementById('players-container').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">👤</p><p>لا يوجد لاعبون بعد</p></div>';
+      const snap = await getDocs(query(collection(db, "users"), orderBy("createdAt","desc")));
+      if (snap.empty) {
+        el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">👤</p><p>لا يوجد لاعبون بعد</p></div>';
+        return;
+      }
+      el.innerHTML = '';
+      const colors = ['linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#3b82f6,#1d4ed8)','linear-gradient(135deg,#ec4899,#be185d)','linear-gradient(135deg,#8b5cf6,#6d28d9)','linear-gradient(135deg,#10b981,#047857)','linear-gradient(135deg,#ef4444,#b91c1c)'];
+      const typeLabel = { player:'لاعب', team_owner:'صاحب فريق', field_owner:'صاحب ملعب' };
+      const posChip  = { 'حارس مرمى':'chip-blue', 'مدافع':'chip-red', 'وسط':'chip-gray', 'جناح':'chip-yellow', 'مهاجم':'chip-green' };
+      let i = 0;
+      snap.forEach(d => {
+        const u = { id: d.id, ...d.data() };
+        const color = colors[i++ % colors.length];
+        const init  = (u.name || '?')[0];
+        const chip  = posChip[u.position] || 'chip-gray';
+        const role  = typeLabel[u.type] || 'عضو';
+        el.innerHTML += `
+          <div class="player-card">
+            <div class="pc-av" style="background:${color};">${init}</div>
+            <div class="pc-name">${u.name || 'مجهول'}</div>
+            <div class="pc-position">
+              ${u.position ? `<span class="chip ${chip}">${u.position}</span>` : `<span class="chip chip-gray">${role}</span>`}
+            </div>
+            <div class="pc-stats">
+              <div class="pc-stat"><div class="pc-stat-val" style="color:var(--green);">${u.matches||'٠'}</div><div class="pc-stat-label">مباراة</div></div>
+              <div class="pc-stat"><div class="pc-stat-val" style="color:var(--yellow);">${u.rating ? '⭐'+u.rating : '—'}</div><div class="pc-stat-label">تقييم</div></div>
+              <div class="pc-stat"><div class="pc-stat-val" style="color:var(--blue);">${u.goals||'٠'}</div><div class="pc-stat-label">هدف</div></div>
+            </div>
+          </div>`;
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">⚠️ تعذّر تحميل اللاعبين</div>';
+    }
   }
 
+  // ── تحميل الملاعب ─────────────────────────────────────
   async function loadFields() {
+    const el = document.getElementById('fields-container');
     try {
-      // مثال: const snap = await getDocs(collection(db, "fields"));
-    } catch(e) {}
-    document.getElementById('fields-container').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏟️</p><p>لا توجد ملاعب بعد</p></div>';
+      const snap = await getDocs(query(collection(db, "fields"), orderBy("createdAt","desc")));
+      if (snap.empty) {
+        el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏟️</p><p>لا توجد ملاعب بعد</p></div>';
+        return;
+      }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const f = { id: d.id, ...d.data() };
+        const avail = f.available !== false;
+        el.innerHTML += `
+          <div class="field-card">
+            <div class="field-img">🏟️<span class="field-img-badge"><span class="chip ${avail?'chip-green':'chip-yellow'}">${avail?'متاح':'مشغول'}</span></span></div>
+            <div class="field-info">
+              <div class="field-name">${f.name||'ملعب'}</div>
+              <div class="field-meta-list">
+                ${f.location ? `<div class="field-meta-item">📍 ${f.location}</div>` : ''}
+                ${f.size     ? `<div class="field-meta-item">⚽ ${f.size}</div>`     : ''}
+                ${f.hours    ? `<div class="field-meta-item">🕐 ${f.hours}</div>`    : ''}
+              </div>
+              <div class="field-footer">
+                <div class="field-price">${f.price||'—'}<span>/ساعة</span></div>
+                <button class="btn btn-green btn-sm" onclick="showToast('تم إرسال طلب الحجز! 📞','success')">احجز الآن</button>
+              </div>
+            </div>
+          </div>`;
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">⚠️ تعذّر تحميل الملاعب</div>';
+    }
   }
 
+  // ── تحميل البطولات ────────────────────────────────────
   async function loadTournaments() {
+    const el = document.getElementById('tournaments-container');
     try {
-      // مثال: const snap = await getDocs(collection(db, "tournaments"));
-    } catch(e) {}
-    document.getElementById('tournaments-container').innerHTML =
-      '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏆</p><p>لا توجد بطولات بعد</p></div>';
+      const snap = await getDocs(query(collection(db, "tournaments"), orderBy("createdAt","desc")));
+      if (snap.empty) {
+        el.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:12px;">🏆</p><p>لا توجد بطولات بعد</p></div>';
+        return;
+      }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const t = { id: d.id, ...d.data() };
+        el.innerHTML += `
+          <div class="tournament-card">
+            <div class="tournament-header">
+              <div class="tournament-icon">🏆</div>
+              <div style="flex:1;">
+                <div class="tournament-name">${t.name||'بطولة'}</div>
+                <div class="tournament-org">${t.organizer||''}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+                  <span class="chip chip-green">${t.status||'مفتوحة'}</span>
+                  ${t.format ? `<span class="chip chip-gray">${t.format}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="tournament-body">
+              <div class="t-stat"><div class="t-stat-val">${t.maxTeams||'—'}</div><div class="t-stat-label">أقصى عدد</div></div>
+              <div class="t-stat"><div class="t-stat-val" style="color:var(--green);">${t.registered||'٠'}</div><div class="t-stat-label">مسجّل</div></div>
+              <div class="t-stat"><div class="t-stat-val" style="color:var(--yellow);">${t.daysLeft||'—'}</div><div class="t-stat-label">يوم متبقي</div></div>
+              <div class="t-stat"><div class="t-stat-val">${t.prizes||'—'}</div><div class="t-stat-label">جوائز</div></div>
+            </div>
+            <div class="tournament-footer">
+              <div style="font-size:13px;color:var(--text-muted);">${t.startDate||''}</div>
+              <button class="btn btn-green btn-sm" onclick="showToast('تم التسجيل! 🏆','success')">سجّل فريقك</button>
+            </div>
+          </div>`;
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⚠️ تعذّر تحميل البطولات</div>';
+    }
   }
 
-  // ── 10. نشر منشور (فاضي — جاهز) ────────────────────
+  // ── دالة مساعدة: الوقت النسبي ────────────────────────
+  function timeAgo(date) {
+    const diff = Math.floor((Date.now() - date) / 1000);
+    if (diff < 60)   return 'الآن';
+    if (diff < 3600) return `منذ ${Math.floor(diff/60)} دقيقة`;
+    if (diff < 86400)return `منذ ${Math.floor(diff/3600)} ساعة`;
+    return `منذ ${Math.floor(diff/86400)} يوم`;
+  }
+
+  // ── 10. نشر منشور ────────────────────────────────────
   window.submitPost = async function() {
     const user = auth.currentUser;
     if (!user) return;
+    const userData = await getUserData(user.uid);
+    const textEl   = document.querySelector('#mo-post textarea');
+    const fieldEl  = document.querySelectorAll('#mo-post .f-input')[1];
+    const datetimeEl = document.querySelector('#mo-post input[type=datetime-local]');
+    const spotsEl  = document.querySelector('#mo-post input[type=number]');
+    const levelEl  = document.querySelector('#mo-post select');
+    const text = textEl?.value?.trim();
+    if (!text) { showToast('اكتب نص المنشور أولاً', 'error'); return; }
     try {
-      // await addDoc(collection(db, "posts"), { ...postData, uid: user.uid, createdAt: serverTimestamp() });
+      await addDoc(collection(db, "posts"), {
+        text,
+        field:      fieldEl?.value    || '',
+        datetime:   datetimeEl?.value || '',
+        spots:      spotsEl?.value    || '',
+        level:      levelEl?.value    || '',
+        authorId:   user.uid,
+        authorName: userData.name  || '',
+        authorType: userData.type  || 'player',
+        createdAt:  serverTimestamp()
+      });
+      if (textEl) textEl.value = '';
       showToast('تم نشر المنشور! 🎉', 'success');
       closeModal('mo-post');
       loadPosts();
     } catch(e) {
-      showToast('حدث خطأ أثناء النشر', 'error');
+      showToast('حدث خطأ أثناء النشر: ' + e.code, 'error');
     }
+  };
+
+  // ── طلب الانضمام لمباراة ─────────────────────────────
+  window.requestJoin = function(btn, matchId) {
+    btn.disabled = true;
+    btn.textContent = '✅ تم الإرسال';
+    btn.classList.remove('btn-green');
+    btn.classList.add('btn-outline');
+    showToast('تم إرسال طلب الانضمام! 🚀', 'success');
   };
 
   // ── 11. تشغيل التطبيق بعد تسجيل الدخول ─────────────
