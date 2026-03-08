@@ -1826,32 +1826,40 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
     if (user.uid === authorId) { showToast('هذا منشورك', ''); return; }
 
     btn.disabled = true;
-    btn.textContent = 'تم الإرسال ✓';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> تم الإرسال';
     btn.classList.remove('btn-green');
     btn.classList.add('btn-outline');
 
     try {
       const userData = await getUserData(user.uid);
-      // إشعار شخصي لصاحب البوست (نوع: available_request)
+
+      // جلب عدد الأماكن الشاغرة من البوست
+      let spotsNeeded = 1;
+      try {
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        if (postSnap.exists()) spotsNeeded = Number(postSnap.data().spots) || 1;
+      } catch(e) {}
+
       await addDoc(collection(db, "personal_notifications"), {
         toUid:       authorId,
         fromUid:     user.uid,
-        fromName:    userData.name  || 'لاعب',
-        fromPhone:   userData.phone || '',
+        fromName:    userData.name     || 'لاعب',
+        fromPhone:   userData.phone    || '',
         fromPos:     userData.position || '',
         fromMatches: userData.matches  || 0,
         fromRating:  userData.rating   || null,
         postId,
         postTitle,
         postType,
-        type:   'available_request',
-        read:   false,
-        status: 'pending',
+        spotsNeeded,
+        type:      'available_request',
+        read:      false,
+        status:    'pending',
         createdAt: serverTimestamp()
       });
-      showToast('تم إرسال طلبك لصاحب البوست', 'success');
+      showToast('✅ تم إرسال طلبك لصاحب البوست', 'success');
     } catch(e) {
-      showToast('خطأ: ' + e.message, 'error');
+      showToast('خطأ: ' + (e.message || e.code), 'error');
       btn.disabled = false;
     }
   };
@@ -1913,45 +1921,62 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
     if (!container) return;
 
     try {
-      const snap = await getDocs(query(
-        collection(db, "personal_notifications"),
-        where("toUid", "==", user.uid),
-        where("status", "==", "pending"),
-        orderBy("createdAt", "desc"),
-        limit(20)
-      ));
+      // استخدام query بسيط بدون orderBy لتجنب الحاجة لـ composite index
+      let snap;
+      try {
+        snap = await getDocs(query(
+          collection(db, "personal_notifications"),
+          where("toUid", "==", user.uid),
+          where("status", "==", "pending"),
+          limit(20)
+        ));
+      } catch(e1) {
+        // fallback: بدون where status
+        snap = await getDocs(query(
+          collection(db, "personal_notifications"),
+          where("toUid", "==", user.uid),
+          limit(30)
+        ));
+      }
 
-      const count = snap.size;
+      // فلترة يدوية + ترتيب يدوي
+      const allDocs = snap.docs
+        .filter(d => (d.data().status || 'pending') === 'pending')
+        .sort((a, b) => (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0));
+
+      const count = allDocs.length;
       if (badge) {
         badge.textContent = count;
         badge.style.display = count > 0 ? 'flex' : 'none';
       }
 
-      if (snap.empty) {
+      if (!count) {
         container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">لا توجد طلبات جديدة</div>';
         return;
       }
 
       container.innerHTML = '';
-      snap.forEach(d => {
+      allDocs.forEach(d => {
         const n = { id: d.id, ...d.data() };
         const gradients = ['linear-gradient(135deg,#f59e0b,#d97706)','linear-gradient(135deg,#3b82f6,#1d4ed8)','linear-gradient(135deg,#22c55e,#15803d)','linear-gradient(135deg,#ec4899,#be185d)'];
-        const grad = gradients[n.fromName?.charCodeAt(0) % gradients.length] || gradients[0];
+        const grad = gradients[(n.fromName?.charCodeAt(0) || 0) % gradients.length];
         const init = (n.fromName || '؟')[0];
+        const time = n.createdAt?.toDate ? timeAgo(n.createdAt.toDate()) : '';
         container.innerHTML += `
           <div class="pnotif-item" id="pnotif-${n.id}">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
               <div style="width:42px;height:42px;border-radius:50%;background:${grad};display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;">${init}</div>
               <div style="flex:1;">
                 <div style="font-size:14px;font-weight:700;">${n.fromName || 'لاعب'}</div>
-                <div style="font-size:11px;color:var(--text-muted);">${n.fromPos || ''} · ${n.fromMatches || 0} مباراة · تقييم: ${n.fromRating || '—'}</div>
+                <div style="font-size:11px;color:var(--text-muted);">${[n.fromPos, n.fromMatches ? n.fromMatches+' مباراة' : '', n.fromRating ? 'تقييم '+n.fromRating : ''].filter(Boolean).join(' · ')}</div>
               </div>
+              ${time ? `<div style="font-size:10px;color:var(--text-muted);">${time}</div>` : ''}
             </div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:8px;">
-              قال "متاح" على: <strong>${n.postTitle || ''}</strong>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+              ✋ قال "متاح" على: <strong>${n.postTitle || 'منشور'}</strong>
             </div>
             <div style="display:flex;gap:8px;" id="pnotif-actions-${n.id}">
-              <button class="btn btn-green btn-sm" style="flex:1;justify-content:center;" 
+              <button class="btn btn-green btn-sm" style="flex:1;justify-content:center;"
                 onclick="acceptPlayer('${n.id}','${(n.fromPhone||'').replace(/'/g,"\\'")}','${(n.fromName||'').replace(/'/g,"\\'")}','${n.postId||''}','${(n.postTitle||'').replace(/'/g,"\\'")}',${n.spotsNeeded||1},document.getElementById('pnotif-actions-${n.id}'))">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>قبول + واتساب
               </button>
@@ -1963,7 +1988,8 @@ textarea.f-input{resize:vertical;min-height:90px;line-height:1.6;}
           </div>`;
       });
     } catch(e) {
-      container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">تعذّر التحميل</div>';
+      console.error('loadPersonalNotifs error:', e);
+      container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">تعذّر التحميل<br><span style="font-size:10px;opacity:0.6;">${e.message||''}</span></div>`;
     }
   }
   window.loadPersonalNotifs = loadPersonalNotifs;
